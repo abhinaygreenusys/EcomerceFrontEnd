@@ -6,13 +6,79 @@ const FlightBooking = () => {
   const [activeTab, setActiveTab] = useState('flight');
   const navigate = useNavigate();
 
+  const [flightFrom, setFlightFrom] = useState('');
+  const [flightTo, setFlightTo] = useState('');
+  const [flightClass, setFlightClass] = useState(' ');
+  const [departure, setDeparture] = useState('');
+  const stations = [
+    'New Delhi',
+    'Mumbai',
+    'Chennai',
+    'Kolkata',
+    'Bangalore',
+    'Hyderabad',
+    'Ahmedabad',
+    'Pune',
+    'Jaipur',
+    'Lucknow',
+  ];
+  const [showFromSuggestions, setShowFromSuggestions] = useState(false);
+  const [showToSuggestions, setShowToSuggestions] = useState(false);
+  const handleFromChange = (e) => {
+    setFlightFrom(e.target.value);
+    setShowFromSuggestions(true);
+  };
+  const handleFromFocus = () => {
+    setShowFromSuggestions(true);
+  };
+  
+  const handleFromBlur = () => {
+    setTimeout(() => setShowFromSuggestions(false), 100);
+  };
+  
+  const handleToChange = (e) => {
+    setFlightTo(e.target.value);
+    setShowToSuggestions(true);
+  };
+  
+  const handleToFocus = () => {
+    setShowToSuggestions(true);
+  };
+  
+  const handleToBlur = () => {
+    setTimeout(() => setShowToSuggestions(false), 100);
+  };
+  
+  const filteredFromStations = stations.filter((station) =>
+    station.toLowerCase().startsWith(flightFrom.toLowerCase())
+  );
+  
+  const filteredToStations = stations.filter((station) =>
+    station.toLowerCase().startsWith(flightTo.toLowerCase())
+  );
+
+  const handleFlightSearch = (e) => {
+    e.preventDefault();
+    if (!flightFrom || !flightTo) {
+      alert('Please enter both departure and destination stations.');
+      return;
+    }
+    if (flightFrom === flightTo) {
+      alert('Departure and destination stations cannot be the same.');
+      return;
+    }
+    if (!departure) {
+      alert('Please select a journey date.');
+      return;
+    }
+    navigate('/flight-details', { state: { flightFrom, flightTo, flightClass, departure } });
+  };
   const handleTabClick = (tab) => {
     setActiveTab(tab);
     if (tab === 'train') {
       navigate('/train-booking');
     }
   };
-
   return (
     <div className="hotel-flight-booking-page">
       <div className="promotion-section">
@@ -67,31 +133,66 @@ const FlightBooking = () => {
           <div className="flight-options-row">
             <div className="flight-option from">
               <label htmlFor="from">From</label>
-              <select id="from" name="from">
-                <option value="airport1">Airport 1</option>
-                <option value="airport2">Airport 2</option>
-                <option value="airport3">Airport 3</option>
-              </select>
+              <input 
+              type="text" 
+              id="flightFrom" 
+              name="flightFrom" 
+              value={flightFrom} 
+              onChange={handleFromChange} 
+              onFocus={handleFromFocus}
+              onBlur={handleFromBlur}
+              placeholder="Enter departure station"
+              autoComplete="off"
+            />
+            {flightFrom && showFromSuggestions && filteredFromStations.length > 0 && (
+              <ul className="suggestions">
+                {filteredFromStations.map((station, index) => (
+                  <li 
+                    key={index}
+                    onMouseDown={() => { setFlightFrom(station); setShowFromSuggestions(false); }}
+                  >
+                    {station}
+                  </li>
+                ))}
+              </ul>
+            )}
             </div>
             <div className="flight-option to">
               <label htmlFor="to">To</label>
-              <select id="to" name="to">
-                <option value="city1">City 1</option>
-                <option value="city2">City 2</option>
-                <option value="city3">City 3</option>
-              </select>
+              <input type="text" id="flightTo" name="flightTo" value={flightTo} 
+                onChange={handleToChange} onFocus={handleToFocus}onBlur={handleToBlur}
+                placeholder="Enter destination station"autoComplete="off"
+              />
+            {flightTo && showToSuggestions && filteredToStations.length > 0 && (
+              <ul className="suggestions">
+                {filteredToStations.map((station, index) => (
+                  <li key={index} onMouseDown={() => { setFlightTo(station); setShowToSuggestions(false); }}>
+                    {station}
+                  </li>
+                ))}
+              </ul>
+            )}
             </div>
             <div className="flight-option departure">
               <label htmlFor="departure">Departure</label>
-              <input type="date" id="departure" name="departure" />
+              <input type="date" id="departure" name="departure" value={departure}
+                onChange={(e) => setDeparture(e.target.value)}
+                min={new Date().toISOString().split('T')[0]}
+              />
             </div>
             <div className="flight-option people">
-              <label htmlFor="people">No. of People</label>
-              <select id="people" name="people">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
+              <label htmlFor="people">Class</label>
+              <select id="class" name="people"value={flightClass} onChange={(e) => setFlightClass(e.target.value)}>
+                <option value="economy">Economy</option>
+                <option value="business">Business</option>
               </select>
+            </div>
+          </div>
+          <div className="flight-options-row">
+            <div className="flight-option class">
+            <button className="search-button" onClick={handleFlightSearch}>
+            Search Flight
+          </button>
             </div>
           </div>
         </div>

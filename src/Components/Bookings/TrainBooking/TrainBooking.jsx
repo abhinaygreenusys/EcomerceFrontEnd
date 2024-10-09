@@ -82,7 +82,7 @@ const TrainBooking = () => {
   const handleTabClick = (tab) => {
     setActiveTab(tab);
     if (tab === 'flight') {
-      navigate('/booking'); // Adjust the route as needed
+      navigate('/booking');
     }
   };
 
